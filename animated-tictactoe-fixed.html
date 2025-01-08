@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Tic Tac Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #1a1a1a, #2a2a2a);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+        }
+
+        .status {
+            margin: 1.5rem 0;
+            font-size: 1.2rem;
+            height: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 2rem auto;
+            width: 320px;
+            height: 320px;
+            perspective: 1000px;
+        }
+
+        .cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 2.5rem;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateZ(20px);
+        }
+
+        .cell.x, .cell.o {
+            cursor: not-allowed;
+        }
+
+        /* Fixed X animation */
+        .cell.x {
+            position: relative;
+        }
+
+        .cell.x::before,
+        .cell.x::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70%;
+            height: 3px;
+            background: #00ff88;
+            transform-origin: center;
+        }
+
+        .cell.x::before {
+            animation: drawLine1 0.2s forwards;
+        }
+
+        .cell.x::after {
+            animation: drawLine2 0.2s 0.2s forwards;
+        }
+
+        @keyframes drawLine1 {
+            0% {
+                transform: translate(-50%, -50%) rotate(45deg) scaleX(0);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(45deg) scaleX(1);
+            }
+        }
+
+        @keyframes drawLine2 {
+            0% {
+                transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(-45deg) scaleX(1);
+            }
+        }
+
+        .cell.o::before {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            border: 3px solid #ff3366;
+            border-radius: 50%;
+            top: 20%;
+            left: 20%;
+            transform: scale(0);
+            animation: drawO 0.3s forwards;
+        }
+
+        @keyframes drawO {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .reset-btn {
+            background: none;
+            border: 2px solid white;
+            color: white;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .reset-btn:hover {
+            background: white;
+            color: #1a1a1a;
+            transform: translateY(-2px);
+            opacity: 1;
+        }
+
+        .winner {
+            animation: winPulse 1.5s infinite;
+        }
+
+        @keyframes winPulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TIC TAC TOE</h1>
+        <div class="status" id="status">X's Turn</div>
+        <div class="board" id="board">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+        <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+    </div>
+
+    <script>
+        let currentPlayer = 'x';
+        let gameBoard = Array(9).fill('');
+        let gameActive = true;
+
+        const winningCombos = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        const cells = document.querySelectorAll('.cell');
+        const status = document.getElementById('status');
+        const board = document.getElementById('board');
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleClick);
+        });
+
+        function handleClick(e) {
+            const cell = e.target;
+            const index = cell.dataset.index;
+
+            if (gameBoard[index] !== '' || !gameActive) return;
+
+            gameBoard[index] = currentPlayer;
+            cell.classList.add(currentPlayer);
+
+            if (checkWin()) {
+                gameActive = false;
+                status.textContent = `${currentPlayer.toUpperCase()} Wins!`;
+                highlightWinningCells();
+                return;
+            }
+
+            if (checkDraw()) {
+                gameActive = false;
+                status.textContent = "It's a Draw!";
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+            status.textContent = `${currentPlayer.toUpperCase()}'s Turn`;
+        }
+
+        function checkWin() {
+            return winningCombos.some(combo => {
+                return combo.every(index => gameBoard[index] === currentPlayer);
+            });
+        }
+
+        function checkDraw() {
+            return gameBoard.every(cell => cell !== '');
+        }
+
+        function highlightWinningCells() {
+            const winningCombo = winningCombos.find(combo => {
+                return combo.every(index => gameBoard[index] === currentPlayer);
+            });
+
+            if (winningCombo) {
+                winningCombo.forEach(index => {
+                    cells[index].classList.add('winner');
+                });
+            }
+        }
+
+        function resetGame() {
+            gameBoard = Array(9).fill('');
+            gameActive = true;
+            currentPlayer = 'x';
+            status.textContent = "X's Turn";
+            
+            cells.forEach(cell => {
+                cell.className = 'cell';
+            });
+        }
+
+        // 3D hover effect
+        board.addEventListener('mousemove', (e) => {
+            const { left, top, width, height } = board.getBoundingClientRect();
+            const x = (e.clientX - left) / width;
+            const y = (e.clientY - top) / height;
+            
+            const rotateX = (y - 0.5) * 10;
+            const rotateY = (x - 0.5) * 10;
+            
+            board.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        board.addEventListener('mouseleave', () => {
+            board.style.transform = 'rotateX(0) rotateY(0)';
+        });
+    </script>
+</body>
+</html>

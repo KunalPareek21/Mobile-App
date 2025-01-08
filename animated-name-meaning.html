@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Magical Name Meaning Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            padding: 20px;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 500px;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1::after {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            right: -30px;
+            font-size: 2rem;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(15deg); opacity: 0.7; }
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            background: #f0f0f0;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(35, 166, 213, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #23a6d5, #23d5ab);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(35, 166, 213, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(35, 166, 213, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .meaning-container {
+            margin-top: 2rem;
+        }
+
+        .meaning-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .letter {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #23a6d5;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: popIn 0.5s ease forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .word {
+            font-size: 1.2rem;
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .meaning-item:nth-child(1) { animation-delay: 0.1s; }
+        .meaning-item:nth-child(2) { animation-delay: 0.2s; }
+        .meaning-item:nth-child(3) { animation-delay: 0.3s; }
+        .meaning-item:nth-child(4) { animation-delay: 0.4s; }
+        .meaning-item:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Name Meaning</h1>
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="nameInput" 
+                placeholder="Enter your name..."
+                maxlength="15"
+                autocomplete="off"
+            >
+        </div>
+        <button onclick="generateMeaning()">Generate Meaning ✨</button>
+        <div id="meaningContainer" class="meaning-container">
+            <div class="empty-state">Enter a name to discover its magical meaning ✨</div>
+        </div>
+    </div>
+
+    <script>
+        const dictionary = {
+            'A': ['Ambitious', 'Adventurous', 'Authentic', 'Artistic', 'Amazing', 'Adaptable'],
+            'B': ['Brave', 'Brilliant', 'Beautiful', 'Balanced', 'Benevolent', 'Bold'],
+            'C': ['Creative', 'Caring', 'Charismatic', 'Confident', 'Cheerful', 'Calm'],
+            'D': ['Dynamic', 'Determined', 'Dedicated', 'Diligent', 'Dazzling', 'Delightful'],
+            'E': ['Energetic', 'Elegant', 'Empathetic', 'Enthusiastic', 'Extraordinary', 'Efficient'],
+            'F': ['Fearless', 'Friendly', 'Faithful', 'Free-spirited', 'Fantastic', 'Fun-loving'],
+            'G': ['Generous', 'Genuine', 'Graceful', 'Gifted', 'Gentle', 'Grateful'],
+            'H': ['Honest', 'Happy', 'Helpful', 'Harmonious', 'Humble', 'Hopeful'],
+            'I': ['Intelligent', 'Inspiring', 'Innovative', 'Imaginative', 'Independent', 'Intuitive'],
+            'J': ['Joyful', 'Just', 'Jovial', 'Jubilant', 'Journey-seeking', 'Judicious'],
+            'K': ['Kind', 'Keen', 'Knowledgeable', 'Kindhearted', 'Kaleidoscopic', 'Kingly'],
+            'L': ['Loving', 'Loyal', 'Lively', 'Luminous', 'Logical', 'Leadership-oriented'],
+            'M': ['Magical', 'Mindful', 'Motivated', 'Mysterious', 'Magnificent', 'Mature'],
+            'N': ['Natural', 'Noble', 'Nurturing', 'Noteworthy', 'Nice', 'Navigating'],
+            'O': ['Optimistic', 'Original', 'Observant', 'Outstanding', 'Open-minded', 'Orderly'],
+            'P': ['Passionate', 'Patient', 'Peaceful', 'Positive', 'Proactive', 'Purposeful'],
+            'Q': ['Quick-witted', 'Queenly', 'Quiet', 'Quality-focused', 'Questing', 'Quintessential'],
+            'R': ['Radiant', 'Reliable', 'Resilient', 'Respectful', 'Remarkable', 'Resourceful'],
+            'S': ['Sincere', 'Smart', 'Spirited', 'Strong', 'Successful', 'Supportive'],
+            'T': ['Thoughtful', 'Talented', 'Tenacious', 'Truthful', 'Trustworthy', 'Transformative'],
+            'U': ['Unique', 'Understanding', 'Unified', 'Uplifting', 'Unstoppable', 'Unifying'],
+            'V': ['Vibrant', 'Versatile', 'Valuable', 'Victorious', 'Virtuous', 'Vivacious'],
+            'W': ['Wise', 'Warmhearted', 'Wonderful', 'Wholesome', 'Witty', 'Welcoming'],
+            'X': ['Xenial', 'Xanthous', 'Extraordinary', 'Excellent', 'Exemplary', 'Exotic'],
+            'Y': ['Young-at-heart', 'Yielding', 'Yearning', 'Youthful', 'Yare', 'Yielding'],
+            'Z': ['Zealous', 'Zestful', 'Zen', 'Zippy', 'Zany', 'Zealful']
+        };
+
+        function getRandomWord(letter) {
+            const words = dictionary[letter.toUpperCase()];
+            return words ? words[Math.floor(Math.random() * words.length)] : '';
+        }
+
+        function generateMeaning() {
+            const name = document.getElementById('nameInput').value.trim();
+            const container = document.getElementById('meaningContainer');
+            
+            if (!name) {
+                container.innerHTML = '<div class="empty-state">Enter a name to discover its magical meaning ✨</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // Add slight delay for button animation to complete
+            setTimeout(() => {
+                for (let letter of name.toUpperCase()) {
+                    const word = getRandomWord(letter);
+                    if (word) {
+                        const item = document.createElement('div');
+                        item.className = 'meaning-item';
+                        item.innerHTML = `
+                            <span class="letter">${letter}</span>
+                            <span class="word">${word}</span>
+                        `;
+                        container.appendChild(item);
+                    }
+                }
+            }, 100);
+        }
+
+        // Add keyboard support
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateMeaning();
+            }
+        });
+    </script>
+</body>
+</html>
